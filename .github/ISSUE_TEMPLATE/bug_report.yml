@@ -1,0 +1,102 @@
+name: Bug Report
+description: Report a bug with UserDispatch (widget, CLI, or MCP server)
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. Please fill out the sections below so we can reproduce and fix it.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What happened? What did you expect to happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Minimal steps to reproduce the issue.
+      placeholder: |
+        1. Run `npx userdispatch init`
+        2. Select Next.js (App Router)
+        3. ...
+    validations:
+      required: true
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      options:
+        - Widget
+        - CLI (`npx userdispatch init`)
+        - MCP Server
+        - Dashboard
+        - API
+    validations:
+      required: true
+
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - macOS
+        - Linux
+        - Windows
+        - Other
+
+  - type: dropdown
+    id: node
+    attributes:
+      label: Node.js version
+      options:
+        - "18"
+        - "20"
+        - "22"
+        - Other
+
+  - type: dropdown
+    id: framework
+    attributes:
+      label: Framework
+      options:
+        - Next.js (App Router)
+        - Next.js (Pages Router)
+        - Vite
+        - Create React App
+        - Nuxt
+        - SvelteKit
+        - Astro
+        - Static HTML
+        - Other / N/A
+
+  - type: dropdown
+    id: agent
+    attributes:
+      label: AI coding agent
+      options:
+        - Claude Code
+        - Cursor
+        - Windsurf
+        - VS Code Copilot
+        - Codex
+        - Claude Desktop
+        - Other / N/A
+
+  - type: textarea
+    id: cli-output
+    attributes:
+      label: CLI output
+      description: Paste the full CLI output if relevant.
+      render: shell
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
+      description: Screenshots, logs, or anything else that might help.
