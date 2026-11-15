@@ -1,0 +1,44 @@
+# Fast check on every pull request; branch protection requires the job named "pr-check" (KIR-1058).
+# Heavier jobs stay in the repo's other workflows.
+name: pr-check
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pr-check:
+    name: pr-check
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - name: JSON, YAML and SVG files parse; README links to local files resolve
+        run: |
+          set -euo pipefail
+          python3 -m venv "$RUNNER_TEMP/venv"
+          "$RUNNER_TEMP/venv/bin/pip" install -q PyYAML==6.0.3
+          git ls-files -z '*.json' | xargs -0 -n1 python3 -c 'import json, sys; json.load(open(sys.argv[1]))'
+          git ls-files -z '*.yml' '*.yaml' | xargs -0 -n1 "$RUNNER_TEMP/venv/bin/python" -c 'import yaml, sys; yaml.safe_load(open(sys.argv[1]))'
+          git ls-files -z '*.svg' | xargs -0 -n1 python3 -c 'import sys, xml.etree.ElementTree as E; E.parse(sys.argv[1])'
+          python3 - <<'PY'
+          import os, re, subprocess, sys
+          bad = []
+          for md in subprocess.check_output(["git", "ls-files", "*.md"], text=True).split():
+              for target in re.findall(r"\]\(([^)#\s]+)", open(md).read()):
+                  if "://" in target or target.startswith("mailto:"):
+                      continue
+                  if not os.path.exists(os.path.join(os.path.dirname(md), target)):
+                      bad.append(f"{md}: {target}")
+          print("\n".join(bad) or "local links ok")
+          sys.exit(1 if bad else 0)
+          PY
